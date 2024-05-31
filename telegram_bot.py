@@ -9,7 +9,6 @@ from telegram import Update
 load_dotenv()
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 
-# Função para ler apenas a coluna R do arquivo Excel e imprimir o número de linhas
 def print_excel_info(file_path):
     df = pd.read_excel(file_path, usecols='R')
     num_rows = df.shape[0]
@@ -62,10 +61,13 @@ async def verificar_placa(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         await update.message.reply_text(f'A placa {placa} não está na planilha.')
 
 async def main() -> None:
-    application = Application.builder().token(BOT_TOKEN).build()
-    application.add_handler(CommandHandler("start", start))
-    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, verificar_placa))
-    await application.run_polling()
+    try:
+        application = Application.builder().token(BOT_TOKEN).build()
+        application.add_handler(CommandHandler("start", start))
+        application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, verificar_placa))
+        await application.run_polling()
+    except RuntimeError as exc:
+        print(f"Erro ao executar o bot: {exc}")
 
 if __name__ == '__main__':
     asyncio.run(main())
